@@ -14,10 +14,25 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    Properties signingProperties = new Properties()
+    File signingPropertiesFile = file("../signing.properties")
+    boolean signingPropertiesExist = signingPropertiesFile.exists()
+    if (signingPropertiesExist) signingProperties.load(new FileInputStream(signingPropertiesFile))
+
+    signingConfigs {
+        release {
+            storeFile signingPropertiesExist ? file(signingProperties["signingStoreLocation"]) : null
+            storePassword signingProperties["signingStorePassword"]
+            keyAlias signingProperties["signingKeyAlias"]
+            keyPassword signingProperties["signingKeyPassword"]
+        }
+    }
+    
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
     compileOptions {
